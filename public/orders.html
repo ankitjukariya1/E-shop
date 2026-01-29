@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders - E-Commerce Store</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-brand">
+        <h1>🛒 E-Shop</h1>
+      </div>
+      <div class="nav-links">
+        <a href="/" class="nav-link">Products</a>
+        <a href="/cart.html" class="nav-link">
+          Cart <span class="cart-count" id="cartCount">0</span>
+        </a>
+        <a href="/orders.html" class="nav-link active">Orders</a>
+        <a href="/admin.html" class="nav-link" id="adminLink" style="display: none;">Admin</a>
+        <button class="nav-link btn-logout" id="logoutBtn">Logout</button>
+        <span class="user-name" id="userName"></span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1>My Orders</h1>
+    <div class="orders-list" id="ordersList">
+      <div class="loading">Loading orders...</div>
+    </div>
+  </main>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/orders.js"></script>
+</body>
+</html>
