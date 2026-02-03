@@ -188,9 +188,7 @@ exports.removeFromCart = async (req, res) => {
   }
 };
 
-// @desc    Clear cart
-// @route   DELETE /api/cart
-// @access  Private
+//clear cart
 exports.clearCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.user.id });
