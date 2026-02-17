@@ -1,24 +1,28 @@
-const User = require('../models/User');
-const { sendTokenResponse } = require('../utils/auth');
+const User = require("../models/User");
+const { sendTokenResponse } = require("../utils/auth");
 
 // register user
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide all required fields'
+        message: "Please provide all required fields",
       });
     }
+
+    // Validate role - only allow buyer or seller during registration
+    const allowedRoles = ["buyer", "seller"];
+    const userRole = allowedRoles.includes(role) ? role : "buyer";
 
     // check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'Email already taken'
+        message: "Email already taken",
       });
     }
 
@@ -26,15 +30,16 @@ exports.register = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      password
+      password,
+      role: userRole,
     });
 
     sendTokenResponse(user, 201, res);
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error in user registration',
-      error: error.message
+      message: "Error in user registration",
+      error: error.message,
     });
   }
 };
@@ -47,16 +52,16 @@ exports.login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email and password'
+        message: "Please provide email and password",
       });
     }
 
     // Check for user (include password for comparison)
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
@@ -65,7 +70,7 @@ exports.login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
@@ -74,8 +79,8 @@ exports.login = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error in user login',
-      error: error.message
+      message: "Error in user login",
+      error: error.message,
     });
   }
 };
@@ -89,13 +94,13 @@ exports.getMe = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: user
+      data: user,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching user data',
-      error: error.message
+      message: "Error fetching user data",
+      error: error.message,
     });
   }
 };

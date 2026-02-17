@@ -1,22 +1,38 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   getProducts,
   getProduct,
   createProduct,
   updateProduct,
-  deleteProduct
-} = require('../controllers/productController');
-const { protect, authorize } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+  deleteProduct,
+  getMyProducts,
+} = require("../controllers/productController");
+const { protect, authorize } = require("../middleware/auth");
+const upload = require("../middleware/upload");
 
-router.route('/')
+router
+  .route("/")
   .get(getProducts)
-  .post(protect, authorize('admin'), upload.single('image'), createProduct);
+  .post(
+    protect,
+    authorize("admin", "seller"),
+    upload.single("image"),
+    createProduct,
+  );
 
-router.route('/:id')
+// Seller: get own products (must be before /:id route)
+router.get("/seller/my-products", protect, authorize("seller"), getMyProducts);
+
+router
+  .route("/:id")
   .get(getProduct)
-  .put(protect, authorize('admin'), upload.single('image'), updateProduct)
-  .delete(protect, authorize('admin'), deleteProduct);
+  .put(
+    protect,
+    authorize("admin", "seller"),
+    upload.single("image"),
+    updateProduct,
+  )
+  .delete(protect, authorize("admin", "seller"), deleteProduct);
 
 module.exports = router;

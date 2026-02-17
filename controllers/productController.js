@@ -1,4 +1,4 @@
-const Product = require('../models/Product');
+const Product = require("../models/Product");
 
 // get all products
 exports.getProducts = async (req, res) => {
@@ -7,11 +7,11 @@ exports.getProducts = async (req, res) => {
 
     // search by name
     if (req.query.search) {
-      query.name = { $regex: req.query.search, $options: 'i' };
+      query.name = { $regex: req.query.search, $options: "i" };
     }
 
     // category filter
-    if (req.query.category && req.query.category !== 'All') {
+    if (req.query.category && req.query.category !== "All") {
       query.category = req.query.category;
     }
 
@@ -29,11 +29,11 @@ exports.getProducts = async (req, res) => {
 
     // Sort
     let sortBy = {};
-    if (req.query.sort === 'price-asc') {
+    if (req.query.sort === "price-asc") {
       sortBy.price = 1;
-    } else if (req.query.sort === 'price-desc') {
+    } else if (req.query.sort === "price-desc") {
       sortBy.price = -1;
-    } else if (req.query.sort === 'rating') {
+    } else if (req.query.sort === "rating") {
       sortBy.rating = -1;
     } else {
       sortBy.createdAt = -1;
@@ -43,7 +43,7 @@ exports.getProducts = async (req, res) => {
       .sort(sortBy)
       .skip(skip)
       .limit(limit)
-      .populate('createdBy', 'name');
+      .populate("createdBy", "name");
 
     const total = await Product.countDocuments(query);
 
@@ -53,13 +53,13 @@ exports.getProducts = async (req, res) => {
       total,
       page,
       pages: Math.ceil(total / limit),
-      data: products
+      data: products,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching products',
-      error: error.message
+      message: "Error fetching products",
+      error: error.message,
     });
   }
 };
@@ -69,24 +69,27 @@ exports.getProducts = async (req, res) => {
 // @access  Public
 exports.getProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate('createdBy', 'name');
+    const product = await Product.findById(req.params.id).populate(
+      "createdBy",
+      "name",
+    );
 
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: 'Product not found'
+        message: "Product not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      data: product
+      data: product,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching product',
-      error: error.message
+      message: "Error fetching product",
+      error: error.message,
     });
   }
 };
@@ -108,20 +111,20 @@ exports.createProduct = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      data: product
+      data: product,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error creating product',
-      error: error.message
+      message: "Error creating product",
+      error: error.message,
     });
   }
 };
 
 // @desc    Update product
 // @route   PUT /api/products/:id
-// @access  Private/Admin
+// @access  Private/Admin/Seller
 exports.updateProduct = async (req, res) => {
   try {
     let product = await Product.findById(req.params.id);
@@ -129,7 +132,18 @@ exports.updateProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: 'Product not found'
+        message: "Product not found",
+      });
+    }
+
+    // Sellers can only update their own products
+    if (
+      req.user.role === "seller" &&
+      product.createdBy.toString() !== req.user.id
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only update your own products",
       });
     }
 
@@ -140,25 +154,25 @@ exports.updateProduct = async (req, res) => {
 
     product = await Product.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators: true
+      runValidators: true,
     });
 
     res.status(200).json({
       success: true,
-      data: product
+      data: product,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error updating product',
-      error: error.message
+      message: "Error updating product",
+      error: error.message,
     });
   }
 };
 
 // @desc    Delete product
 // @route   DELETE /api/products/:id
-// @access  Private/Admin
+// @access  Private/Admin/Seller
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -166,7 +180,18 @@ exports.deleteProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: 'Product not found'
+        message: "Product not found",
+      });
+    }
+
+    // Sellers can only delete their own products
+    if (
+      req.user.role === "seller" &&
+      product.createdBy.toString() !== req.user.id
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only delete your own products",
       });
     }
 
@@ -174,14 +199,37 @@ exports.deleteProduct = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Product deleted successfully',
-      data: {}
+      message: "Product deleted successfully",
+      data: {},
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error deleting product',
-      error: error.message
+      message: "Error deleting product",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Get seller's own products
+// @route   GET /api/products/seller/my-products
+// @access  Private/Seller
+exports.getMyProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ createdBy: req.user.id }).sort({
+      createdAt: -1,
+    });
+
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching your products",
+      error: error.message,
     });
   }
 };

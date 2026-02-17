@@ -23,6 +23,21 @@
           <label for="password">Password</label>
           <input type="password" id="password" required minlength="6">
         </div>
+        <div class="form-group">
+          <label>Register as</label>
+          <div class="role-selector">
+            <label class="role-option">
+              <input type="radio" name="role" value="buyer" checked>
+              <span class="role-label">🛍️ Buyer</span>
+              <small>Browse and purchase products</small>
+            </label>
+            <label class="role-option">
+              <input type="radio" name="role" value="seller">
+              <span class="role-label">🏪 Seller</span>
+              <small>List and sell your products</small>
+            </label>
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary">Register</button>
         <div class="error-message" id="errorMessage"></div>
         <div class="success-message" id="successMessage"></div>
