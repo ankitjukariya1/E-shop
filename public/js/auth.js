@@ -1,5 +1,5 @@
-// API Base URL
-const API_URL = "http://localhost:3000/api";
+// API Base URL - dynamically set based on current host
+const API_URL = `${window.location.origin}/api`;
 
 // Get token from localStorage
 const getToken = () => localStorage.getItem("token");
