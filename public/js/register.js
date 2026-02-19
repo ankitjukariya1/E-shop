@@ -11,7 +11,7 @@ registerForm.addEventListener("submit", async (e) => {
   const role = document.querySelector('input[name="role"]:checked').value;
 
   try {
-    const response = await fetch("http://localhost:3000/api/auth/register", {
+    const response = await fetch(`${window.location.origin}/api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

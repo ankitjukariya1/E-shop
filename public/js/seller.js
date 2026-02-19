@@ -91,7 +91,7 @@ addProductForm.addEventListener("submit", async (e) => {
 
   try {
     const token = getToken();
-    const response = await fetch("http://localhost:3000/api/products", {
+    const response = await fetch(`${window.location.origin}/api/products`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -183,7 +183,7 @@ document
     try {
       const token = getToken();
       const response = await fetch(
-        `http://localhost:3000/api/products/${productId}`,
+        `${window.location.origin}/api/products/${productId}`,
         {
           method: "PUT",
           headers: {
